@@ -1,11 +1,15 @@
 const path = require("path");
 const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const CleanWebpackPlugin = require("clean-webpack-plugin");
+const { CleanWebpackPlugin } = require("clean-webpack-plugin"); // Or try to use without destructuring
 
 module.exports = {
   mode: "development",
-  entry: "./src/index.ts",
+  entry: {
+    app: "./src/App/index.tsx",
+    // styles: "./src/App/style.css",
+  }
+  ,
   output: {
     filename: "bundle.js",
     path: path.resolve(__dirname, "dist"),
@@ -14,10 +18,22 @@ module.exports = {
   module: {
     rules: [
       {
+        test: /\.tsx$/,
+        use: ["ts-loader"],
+
+        exclude: "/node_modules/",
+      },
+      {
         test: /\.css$/,
         use: [
-          "style-loader",
-          "css-loader"
+          {loader: "style-loader"},
+          {loader: "css-loader",
+            options: {
+              use: [require("nib")()],
+              "include css": true,
+            }
+          },
+          {loader: "required-loader"}
         ]
       },
       {
@@ -34,11 +50,14 @@ module.exports = {
       }
     ]
   },
+  resolve: {
+    extensions: [".ts", ".tsx", ".json", ".css"],
+  },
   devtool: "inline-source-map",
   plugins: [
     new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
-      title: "Webpack learnig",
+      title: "Pokemons",
       filename: "index.html"
     }),
     new webpack.HotModuleReplacementPlugin()
@@ -46,7 +65,7 @@ module.exports = {
   devServer: {
     contentBase: "./dist",
     hot: true,
-    host: "dima",
+    host: "localhost",
     open: true
   },
 };
